@@ -51,6 +51,7 @@ def get_competitions():
         results.append(
             {
                 "title": comp.title,
+                "url": comp.url,
                 "deadline": str(comp.deadline),
                 "category": comp.category,
                 "reward": comp.reward,
@@ -135,7 +136,13 @@ def main():
         return
 
     body = "\n\n".join(
-        [f"{c['title']} ({c['category']})\nReward: {c['reward']}\nDeadline: {c['deadline']}" for c in filtered]
+        [
+            f"{c['title']} ({c['category']})\n"
+            f"URL: {c['url']}\n"
+            f"Reward: {c['reward']}\n"
+            f"Deadline: {c['deadline']}"
+            for c in filtered
+        ]
     )
 
     send_email(
