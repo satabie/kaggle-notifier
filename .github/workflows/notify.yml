@@ -1,0 +1,68 @@
+name: Kaggle Notifier
+
+on:
+  schedule:
+    # 毎日 9:00 AM (JST 18:00) に実行
+    - cron: '0 9 * * *'
+  # 手動実行も可能
+  workflow_dispatch:
+
+jobs:
+  notify:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Install uv
+        run: curl -LsSf https://astral.sh/uv/install.sh | sh
+
+      - name: Add uv to PATH
+        run: echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Setup Python & install dependencies
+        run: |
+          uv python install 3.13
+          uv sync
+
+      - name: Setup Kaggle credentials
+        run: |
+          mkdir -p ~/.kaggle
+          echo '{"username":"${{ secrets.KAGGLE_USERNAME }}","key":"${{ secrets.KAGGLE_KEY }}"}' > ~/.kaggle/kaggle.json
+          chmod 600 ~/.kaggle/kaggle.json
+
+      - name: Setup config.json
+        run: |
+          cat > config.json << 'EOF'
+          {
+            "filters": {
+              "table_only": true,
+              "category": ["Featured", "Research"]
+            }
+          }
+          EOF
+
+      - name: Load sent history from cache
+        uses: actions/cache@v4
+        with:
+          path: sent_competitions.json
+          key: sent-competitions-${{ github.sha }}
+          restore-keys: |
+            sent-competitions-
+
+      - name: Run notifier
+        env:
+          EMAIL: ${{ secrets.EMAIL }}
+          SMTP_USER: ${{ secrets.SMTP_USER }}
+          SMTP_PASS: ${{ secrets.SMTP_PASS }}
+          SMTP_SERVER: smtp.gmail.com
+          SMTP_PORT: 587
+        run: uv run python main.py
+
+      - name: Save sent history to cache
+        if: always()
+        uses: actions/cache/save@v4
+        with:
+          path: sent_competitions.json
+          key: sent-competitions-${{ github.sha }}

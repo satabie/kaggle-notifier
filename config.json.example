@@ -1,0 +1,6 @@
+{
+  "filters": {
+    "table_only": true,
+    "category": ["Featured", "Research"]
+  }
+}
