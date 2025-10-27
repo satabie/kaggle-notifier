@@ -10,6 +10,108 @@ Kaggleの新着コンペティションをメールで通知するツール。�
 - 送信済みコンペの重複通知を防止
 - Gmailを使ったメール通知
 
+
+## Usage:
+
+**GitHub Actionsで自動実行。ローカル環境不要。**
+
+1. このリポジトリを[フォーク](../../fork)
+2. [セットアップ手順](#github-actionsでの自動実行)に従ってSecretsを設定
+3. 毎日自動でメール通知が届く
+
+→ **[詳細はこちら](#github-actionsでの自動実行)**
+
+## Dev:
+
+**ローカルで実行・カスタマイズしたい場合。**
+
+1. リポジトリをクローン
+2. [ローカル実行の設定](#ローカルでの実行)を完了
+3. コードを自由に改造
+
+→ **[詳細はこちら](#ローカルでの実行)**
+
+---
+
+## GitHub Actionsでの自動実行
+
+毎日自動でKaggleの新着コンペをチェックしてメール通知します。**ローカル環境は不要**です。
+
+### 設定手順
+
+#### 1. リポジトリのSecretsを設定
+
+フォークしたリポジトリの `Settings` > `Secrets and variables` > `Actions` > `New repository secret` で以下を追加：
+
+| Secret名 | 値 | 説明 |
+|---------|---|------|
+| `EMAIL` | `your-email@example.com` | 通知先メールアドレス |
+| `SMTP_USER` | `your-email@gmail.com` | SMTP認証用メールアドレス |
+| `SMTP_PASS` | `your-app-password` | Gmailアプリパスワード（16桁） |
+| `KAGGLE_USERNAME` | `your-kaggle-username` | Kaggleユーザー名 |
+| `KAGGLE_KEY` | `your-kaggle-api-key` | Kaggle APIキー |
+
+#### 2. 認証情報の取得方法
+
+**Gmailアプリパスワード:**
+1. Googleアカウントで2段階認証を有効化
+2. [https://myaccount.google.com/apppasswords](https://myaccount.google.com/apppasswords) にアクセス
+3. アプリパスワードを生成（16桁の英数字）
+4. `SMTP_PASS`に設定（スペースなし）
+
+**Kaggle API認証情報:**
+1. [Kaggle Account Settings](https://www.kaggle.com/settings/account) にアクセス
+2. "Create New Token"をクリックして`kaggle.json`をダウンロード
+3. ファイルを開いて`username`と`key`の値をコピー
+4. それぞれ`KAGGLE_USERNAME`と`KAGGLE_KEY`に設定
+
+#### 3. フィルター設定（オプション）
+
+[config.json](config.json)を編集して通知条件をカスタマイズ：
+
+```json
+{
+  "filters": {
+    "table_only": true,
+    "category": ["Featured", "Research"]
+  }
+}
+```
+
+- `table_only`: `true`にするとテーブルコンペ（`tabular`タグ）のみ通知
+- `category`: 通知対象のカテゴリーを指定
+  - `Featured`: 企業スポンサー付きコンペ
+  - `Research`: 研究目的のコンペ
+  - `Getting Started`: 初心者向けチュートリアル（メダル対象外）
+
+#### 4. 動作確認
+
+- `Actions` タブ > `Kaggle Notifier` を選択
+- `Run workflow` ボタンをクリックして手動実行
+- メールが届くことを確認
+
+### スケジュール変更
+
+デフォルトは**毎日 9:00 AM UTC（日本時間 18:00）**に実行されます。
+
+変更する場合は [.github/workflows/notify.yml](.github/workflows/notify.yml) の `cron` を編集：
+
+```yaml
+schedule:
+  # 毎日 0:00 UTC（日本時間 9:00）に変更する場合
+  - cron: '0 0 * * *'
+```
+
+### 送信履歴の管理
+
+GitHub Actionsのキャッシュ機能で`sent_competitions.json`を保持し、重複通知を防止します。
+
+---
+
+## ローカルでの実行
+
+コードをカスタマイズしたい場合や、ローカルで実行したい場合の手順です。
+
 ## セットアップ
 
 ### 1. 依存パッケージのインストール
@@ -60,9 +162,9 @@ mv ~/Downloads/kaggle.json ~/.kaggle/
 chmod 600 ~/.kaggle/kaggle.json
 ```
 
-### 4. フィルター設定
+### 4. フィルター設定（オプション）
 
-`config.json`を編集(既存のものは私の設定です)
+`config.json`を編集して通知条件をカスタマイズ：
 
 ```json
 {
@@ -73,15 +175,13 @@ chmod 600 ~/.kaggle/kaggle.json
 }
 ```
 
-#### フィルターオプション
-
 - `table_only`: `true`にするとテーブルコンペ（`tabular`タグ）のみ通知
-- `category`: 通知対象のカテゴリーを指定（例：`["Featured", "Research"]`）
+- `category`: 通知対象のカテゴリーを指定
   - `Featured`: 企業スポンサー付きコンペ
   - `Research`: 研究目的のコンペ
   - `Getting Started`: 初心者向けチュートリアル（メダル対象外）
 
-## 使い方
+### 実行方法
 
 ```bash
 uv run python main.py
@@ -171,5 +271,4 @@ OSError: Could not find kaggle.json
 - ファイルのパーミッションが`600`になっているか確認（`chmod 600 ~/.kaggle/kaggle.json`）
 
 ## ライセンス
-
 MIT
