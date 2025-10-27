@@ -35,17 +35,6 @@ jobs:
           echo "{\"username\":\"${KAGGLE_USERNAME}\",\"key\":\"${KAGGLE_KEY}\"}" > ~/.kaggle/kaggle.json
           chmod 600 ~/.kaggle/kaggle.json
 
-      - name: Setup config.json
-        run: |
-          cat > config.json << 'EOF'
-          {
-            "filters": {
-              "table_only": true,
-              "category": ["Featured", "Research"]
-            }
-          }
-          EOF
-
       - name: Load sent history from cache
         uses: actions/cache@v4
         with:

@@ -5,7 +5,7 @@ Kaggleの新着コンペティションをメールで通知するツール。�
 ## 機能
 
 - Kaggle APIを使用してコンペ一覧を取得
-- テーブルコンペ（`tabular`タグ）のみをフィルタリング
+- テーブルコンペ（`tabular`タグ）のみをフィルタリング(オフも可能)
 - カテゴリー（Featured, Researchなど）でフィルタリング
 - 送信済みコンペの重複通知を防止
 - Gmailを使ったメール通知
@@ -62,13 +62,7 @@ chmod 600 ~/.kaggle/kaggle.json
 
 ### 4. フィルター設定
 
-`config.json.example`をコピーして`config.json`を作成：
-
-```bash
-cp config.json.example config.json
-```
-
-`config.json`を編集：
+`config.json`を編集(既存のものは私の設定です)
 
 ```json
 {
@@ -148,9 +142,8 @@ schedule:
 ```
 .
 ├── main.py                    # メインスクリプト
-├── config.json.example        # 設定ファイルのテンプレート
+├── config.json                # 設定ファイル
 ├── .env.example               # 環境変数のテンプレート
-├── sent_competitions.json     # 送信済みコンペの履歴（自動生成）
 ├── pyproject.toml             # 依存パッケージ管理
 └── README.md                  # このファイル
 ```
