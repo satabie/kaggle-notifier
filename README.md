@@ -90,6 +90,7 @@ uv run python main.py
 ## 定期実行（GitHub Actions）
 
 GitHub Actionsを使って毎日自動で新着コンペをチェックできます。
+このリポジトリをフォークしたのち、config.jsonをお好きなように書き換えてください。
 
 ### GitHub Actionsの設定手順
 
